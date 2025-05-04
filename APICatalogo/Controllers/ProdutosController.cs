@@ -21,7 +21,7 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _context.Produtos.ToList();
+            var produtos = _context.Produtos.Take(10).ToList();
             if (produtos is null)
             {
                 return NotFound("Produtos nao encotrado");
@@ -32,7 +32,7 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produtos = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produtos = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
             if (produtos is null)
             {
                 return NotFound("Produtos nao encotrado");
