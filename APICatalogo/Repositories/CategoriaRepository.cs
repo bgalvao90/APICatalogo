@@ -16,5 +16,15 @@ namespace APICatalogo.Repositories
             var categoriasOrdenadas = PagedList<Categoria>.ToPagedList(categorias, categoriasParames.PageNumber, categoriasParames.PageSize);
             return categoriasOrdenadas;
         }
+        public PagedList<Categoria> GetCategoriasFiltroNome(CategoriasFiltroNome categoriasFiltroNomeParams)
+        {
+            var categorias = GetAll().AsQueryable();
+            if (!string.IsNullOrEmpty(categoriasFiltroNomeParams.Nome))
+            {
+                categorias = categorias.Where(c => c.Nome.Contains(categoriasFiltroNomeParams.Nome, StringComparison.OrdinalIgnoreCase));
+            }
+            var categoriasFiltradas = PagedList<Categoria>.ToPagedList(categorias, categoriasFiltroNomeParams.PageNumber, categoriasFiltroNomeParams.PageSize);
+            return categoriasFiltradas;
+        }
     }
 }

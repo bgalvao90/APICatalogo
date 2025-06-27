@@ -44,6 +44,17 @@ namespace APICatalogo.Controllers
         public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
         {
             var categorias = _uof.CategoriaRepository.GetCategorias(categoriasParameters);
+            return ObterCategorias(categorias);
+
+        }
+        [HttpGet("filter/nome/pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltroNome([FromQuery] CategoriasFiltroNome cateriasFiltroNomeParams)
+        {
+            var categorias = _uof.CategoriaRepository.GetCategoriasFiltroNome(cateriasFiltroNomeParams);
+            return ObterCategorias(categorias);
+        }
+        private ActionResult<IEnumerable<CategoriaDTO>> ObterCategorias(PagedList<Categoria> categorias)
+        {
             var metadata = new
             {
                 categorias.TotalCount,
@@ -57,7 +68,6 @@ namespace APICatalogo.Controllers
 
             var categoriasDto = categorias.ToCategoriaDTOList();
             return Ok(categoriasDto);
-
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
