@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
+using X.PagedList;
 
 namespace APICatalogo.Repositories
 {
@@ -10,25 +11,27 @@ namespace APICatalogo.Repositories
         {
         }
 
-        public async Task<PagedList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParames)
+        public async Task<IPagedList<Categoria>> GetCategoriasAsync(CategoriasParameters categoriasParams)
         {
             var categorias = await GetAllAsync();
-            if(categorias == null || !categorias.Any())
-            {
-                return new PagedList<Categoria>(new List<Categoria>(), 0, categoriasParames.PageNumber, categoriasParames.PageSize);
-            }
             var categoriasOrdenadas = categorias.OrderBy(c => c.Nome).AsQueryable();
-            var resutltado = PagedList<Categoria>.ToPagedList(categoriasOrdenadas, categoriasParames.PageNumber, categoriasParames.PageSize);
-            return resutltado;
+            var resultado = await categoriasOrdenadas.ToPagedListAsync(
+                categoriasParams.PageNumber,
+                categoriasParams.PageSize
+            );
+            return resultado;
         }
-        public async Task<PagedList<Categoria>> GetCategoriasFiltroNomeAsync(CategoriasFiltroNome categoriasFiltroNomeParams)
+        public async Task<IPagedList<Categoria>> GetCategoriasFiltroNomeAsync(CategoriasFiltroNome categoriasFiltroNomeParams)
         {
             var categorias = await GetAllAsync();
             if (!string.IsNullOrEmpty(categoriasFiltroNomeParams.Nome))
             {
                 categorias = categorias.Where(c => c.Nome.Contains(categoriasFiltroNomeParams.Nome, StringComparison.OrdinalIgnoreCase  ));
             }
-            var categoriasFiltradas = PagedList<Categoria>.ToPagedList(categorias.AsQueryable(), categoriasFiltroNomeParams.PageNumber, categoriasFiltroNomeParams.PageSize);
+
+            var categoriasFiltradas = await categorias.ToPagedListAsync( categoriasFiltroNomeParams.PageNumber,
+                categoriasFiltroNomeParams.PageSize
+            );
             return categoriasFiltradas;
         }
     }
