@@ -4,6 +4,7 @@ using APICatalogo.Models;
 using APICatalogo.Pagination;
 using APICatalogo.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
@@ -56,7 +57,7 @@ namespace APICatalogo.Controllers
             var prodoutos = await _uof.ProdutoRepository.GetProdutosFiltroPrecoAsync(produtoFiltroPrecoParameters);
             return ObterProdutos(prodoutos);
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
         {
