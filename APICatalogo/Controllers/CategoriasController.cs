@@ -11,9 +11,11 @@ using APICatalogo.Pagination;
 using Newtonsoft.Json;
 using X.PagedList;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 namespace APICatalogo.Controllers
 {
+    [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
     public class CategoriasController : ControllerBase
@@ -29,9 +31,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         [ServiceFilter(typeof(ApiLoggingFilter))]
-        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
             var categorias = await _uof.CategoriaRepository.GetAllAsync();
             if (categorias is null || !categorias.Any())
@@ -73,6 +75,7 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDto);
         }
 
+        [DisableCors]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public async Task<ActionResult<CategoriaDTO>> GetAsync(int id)
         {
@@ -125,6 +128,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
             var categoria = await _uof.CategoriaRepository.GetAsync(c => c.CategoriaId == id);

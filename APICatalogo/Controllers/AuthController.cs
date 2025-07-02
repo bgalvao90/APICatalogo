@@ -35,6 +35,77 @@ namespace APICatalogo.Controllers
 
 
         [HttpPost]
+        [Route("CreateRole")]
+        [Authorize(Policy = "SuperAdminOnly")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            var roleExist = await _roleManager.RoleExistsAsync(roleName);
+
+            if (!roleExist)
+            {
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+                if (roleResult.Succeeded)
+                {
+                    _logger.LogInformation(1, "Role adicionada");
+                    return StatusCode(StatusCodes.Status200OK, new Response
+                    {
+                        Status = "Success",
+                        Message = $"Role {roleName} criada com sucesso!"
+                    });
+                }
+                else
+                {
+                    _logger.LogError(1, "Erro ao adicionar role");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response
+                    {
+                        Status = "Error",
+                        Message = $"Erro ao criar role {roleName}!"
+                    });
+                }
+            }
+            return StatusCode(StatusCodes.Status400BadRequest, new Response
+            {
+                Status = "Error",
+                Message = $"Role {roleName} já existe!"
+            });
+
+        }
+
+        [HttpPost]
+        [Route("AddRoleToUser")]
+        [Authorize(Policy = "SuperAdminOnly")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user != null)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+
+                if(result.Succeeded)
+                {
+                    _logger.LogInformation(1, $"Usuário {user.UserName} adicionado à role {roleName}");
+                    return StatusCode(StatusCodes.Status200OK, new Response
+                    {
+                        Status = "Success",
+                        Message = $"Usuário {user.UserName} adicionado à role {roleName} com sucesso!"
+                    });
+                }
+                else
+                {
+                    _logger.LogError(1, $"Erro ao adicionar usuário {user.UserName} à role {roleName}");
+                    return StatusCode(StatusCodes.Status400BadRequest, new Response
+                    {
+                        Status = "Error",
+                        Message = $"Erro ao adicionar usuário {user.UserName} à role {roleName}!"
+                    });
+                }
+            }
+            return BadRequest(new {error = "Usuário não encontrado." });
+        }
+
+        [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO modelDTO)
         {
@@ -48,6 +119,7 @@ namespace APICatalogo.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName!),
                     new Claim(ClaimTypes.Email, user.Email!),
+                    new Claim("id", user.UserName!),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
@@ -161,6 +233,7 @@ namespace APICatalogo.Controllers
         [Authorize]
         [HttpPost]
         [Route("revoke/{username}")]
+        [Authorize(Policy = "ExclusiveOnly")]
         public async Task<IActionResult> Revoke(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -176,5 +249,7 @@ namespace APICatalogo.Controllers
 
             return NoContent();
         }
+
+       
     }
 }

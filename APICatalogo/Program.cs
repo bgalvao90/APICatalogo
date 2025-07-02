@@ -29,6 +29,17 @@ builder.Services.AddControllers(options =>
 }).AddNewtonsoftJson();
 
 
+
+builder.Services.AddCors(options =>
+ options.AddPolicy("OrigensComAcessoPermitido",
+    policy =>
+    {
+        policy.WithOrigins("http://localhost/xxxx")
+        .WithMethods("GET", "POST")
+        .AllowAnyHeader();
+    })
+);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -100,6 +111,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "bgalvas"));
+
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusiveOnly", policy => policy.RequireAssertion(context => context.User.HasClaim(claim => claim.Type == "id"
+                                                                            && claim.Value == "bgalvas") ||
+                                                                            context.User.IsInRole("SuperAdmin")));
+});
+
 builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -127,6 +152,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseCors();
 
 app.UseAuthorization();
 

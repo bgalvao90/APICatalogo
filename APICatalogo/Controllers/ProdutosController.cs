@@ -57,9 +57,9 @@ namespace APICatalogo.Controllers
             var prodoutos = await _uof.ProdutoRepository.GetProdutosFiltroPrecoAsync(produtoFiltroPrecoParameters);
             return ObterProdutos(prodoutos);
         }
-        [Authorize]
+        [Authorize(Policy = "UserOnly")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
             var produtos = await _uof.ProdutoRepository.GetAllAsync();
             if (produtos is null || !produtos.Any())
