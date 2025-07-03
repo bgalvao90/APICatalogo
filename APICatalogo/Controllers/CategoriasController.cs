@@ -12,12 +12,15 @@ using Newtonsoft.Json;
 using X.PagedList;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace APICatalogo.Controllers
 {
     [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
+    //[EnableRateLimiting("fixed-window")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _uof;
@@ -32,6 +35,7 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         //[Authorize]
+        [DisableRateLimiting]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
