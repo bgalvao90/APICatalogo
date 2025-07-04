@@ -18,7 +18,7 @@ namespace ApiCatalogoxUnitTests.UnitTests
         public IMapper mapper;
         public static DbContextOptions<AppDbContext> dbContextOptions { get; }
 
-        public static string connectionString = "Server=localhost;Database=CatalogoDB;User Id=root;Password=root";
+        public static string connectionString = "Server=localhost;Database=CatalogoDB;User Id=root;Password=root1234";
 
         static ProdutosUnitTestController()
         {

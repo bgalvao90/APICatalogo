@@ -140,19 +140,21 @@ namespace APICatalogo.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesDefaultResponseType]
         public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDto)
         {
             if (produtoDto is null)
             {
-                _logger.LogError("Dados inválidos para criação do produto.");
+               // _logger.LogError("Dados inválidos para criação do produto.");
                 return BadRequest("Dados inválidos para criação do produto.");
             }
+
             var produto = _mapper.Map<Produto>(produtoDto);
+
             var produtoCriado = _uof.ProdutoRepository.Create(produto);
             await _uof.CommitAsync();
+
             var produtoCriadoDto = _mapper.Map<ProdutoDTO>(produtoCriado);
-            _logger.LogInformation($"Produto {produtoCriadoDto.Nome} criado com sucesso.");
+            //_logger.LogInformation($"Produto {produtoCriadoDto.Nome} criado com sucesso.");
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriadoDto.ProdutoId }, produtoCriadoDto);
         }
 
@@ -197,7 +199,7 @@ namespace APICatalogo.Controllers
         {
             if (id != produtoDto.ProdutoId)
             {
-                _logger.LogError("ID do produto não corresponde ao ID fornecido.");
+                //_logger.LogError("ID do produto não corresponde ao ID fornecido.");
                 return BadRequest("ID do produto não corresponde ao ID fornecido.");
             }
             var produto = _mapper.Map<Produto>(produtoDto);
@@ -207,7 +209,7 @@ namespace APICatalogo.Controllers
 
             var produtoAtualizadoDto = _mapper.Map<ProdutoDTO>(produtoAtualizado);
 
-            _logger.LogInformation($"Produto com id={id} atualizado com sucesso.");
+            //_logger.LogInformation($"Produto com id={id} atualizado com sucesso.");
             return Ok($"Produto {produtoAtualizadoDto} atualizado com sucesso.");
         }
 
@@ -220,14 +222,14 @@ namespace APICatalogo.Controllers
             var produto = await _uof.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
             if (produto is null)
             {
-                _logger.LogWarning($"Produto com id= {id} não encontrado.");
+               // _logger.LogWarning($"Produto com id= {id} não encontrado.");
                 return NotFound($"Produto com id= {id} não encontrado.");
             }
             var produtoDeletado =  _uof.ProdutoRepository.Delete(produto);
             await _uof.CommitAsync();
 
             var produtoDeletadoDto = _mapper.Map<ProdutoDTO>(produtoDeletado);
-            _logger.LogInformation($"Produto com id={id} deletado com sucesso.");
+           // _logger.LogInformation($"Produto com id={id} deletado com sucesso.");
             return Ok($"Produto {produtoDeletadoDto} deletado com sucesso.");
         }
     }
