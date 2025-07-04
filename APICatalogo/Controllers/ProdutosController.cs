@@ -24,12 +24,19 @@ namespace APICatalogo.Controllers
         private readonly ILogger<ProdutosController> _logger;
         private readonly IMapper _mapper;
 
-        public ProdutosController(IUnitOfWork uof, ILogger<ProdutosController> logger, IMapper mapper)
+        public ProdutosController(IUnitOfWork uof, IMapper mapper) //ILogger<ProdutosController> logger)
         {
             _uof = uof;
-            _logger = logger;
+            //_logger = logger;
             _mapper = mapper;
         }
+
+        //public ProdutosController(IUnitOfWork uof, IMapper mapper)
+        //{
+        //    _uof = uof;
+        //    _mapper = mapper;
+        //}
+
         [HttpGet("pagination")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
         {
@@ -64,16 +71,27 @@ namespace APICatalogo.Controllers
         /// <returns>Retorna uma lista de objetos Produto</returns>
         [Authorize(Policy = "UserOnly")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {
+            try {
             var produtos = await _uof.ProdutoRepository.GetAllAsync();
             if (produtos is null || !produtos.Any())
             {
+                return NotFound("Nenhum produto encontrado.");          
                 _logger.LogWarning("Nenhum produto encontrado.");
-                return NotFound("Nenhum produto encontrado.");
+
             }
             var produtosDto = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
             return Ok(produtosDto);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>
@@ -82,12 +100,21 @@ namespace APICatalogo.Controllers
         /// <param name="id">Codigo do produto</param>
         /// <returns>Um objeto produto</returns>
         [HttpGet("{id:int}", Name = "ObterProduto")]
-        public async Task<ActionResult<ProdutoDTO>> GetProdutoPorIdAsync(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<ProdutoDTO>> Get(int id)
         {
+            if (id <= 0)
+            {
+//                _logger.LogError("ID do produto inválido.");
+                return BadRequest("ID do produto inválido.");
+            }
             var produtos = await _uof.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
             if (produtos is null)
             {
-                _logger.LogWarning($"Produto com id= {id} não encontrado.");
+               // _logger.LogWarning($"Produto com id= {id} não encontrado.");
                 return NotFound($"Produto com id= {id} não encontrado.");
             }
             var produtosDto = _mapper.Map<ProdutoDTO>(produtos);
@@ -95,6 +122,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("categoria/{id:int}", Name = "ObterProdutoPorCategoria")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosPorCategoriaAsync(int id)
         {
             var produtos = await _uof.ProdutoRepository.GetProdutosPorCategoriaAsync(id);
@@ -108,6 +138,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDto)
         {
             if (produtoDto is null)
@@ -125,6 +158,10 @@ namespace APICatalogo.Controllers
 
 
         [HttpPatch("{id}/UpdatePartial")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ProdutoDTOUpdateResponse>> Patch(int id, JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDTO)
         {
             if(patchProdutoDTO is null || id <= 0)
@@ -153,6 +190,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ProdutoDTO>> Put(int id, ProdutoDTO produtoDto)
         {
             if (id != produtoDto.ProdutoId)
@@ -172,6 +212,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult<ProdutoDTO>> Delete(int id)
         {
             var produto = await _uof.ProdutoRepository.GetAsync(p => p.ProdutoId == id);
