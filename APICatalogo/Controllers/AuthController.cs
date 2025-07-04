@@ -12,7 +12,7 @@ namespace APICatalogo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)] 
+    //[ApiExplorerSettings(IgnoreApi = true)] 
     public class AuthController : ControllerBase
     {
         private readonly ITokenService _tokenService;
@@ -106,6 +106,14 @@ namespace APICatalogo.Controllers
             return BadRequest(new {error = "Usuário não encontrado." });
         }
 
+
+
+        /// <summary>
+        /// Verifica as credenciais de um usuário
+        /// </summary>
+        /// <param name="modelDTO">Um objeto do tipo UsuarioDTO</param>
+        /// <returns>Status 200 e o token para cliente</returns>
+        /// <remarks>Retorna o status 200 e o token</remarks>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO modelDTO)
@@ -151,6 +159,14 @@ namespace APICatalogo.Controllers
             return Unauthorized();
         }
 
+
+
+        /// <summary>
+        /// Registra um novo usuário no sistema
+        /// </summary>
+        /// <param name="modelDTO">Um objeto UsuarioDTO</param>
+        /// <returns>Status 200</returns>
+        /// <remarks>Retorna o Status 200</remarks>
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModelDTO modelDTO)

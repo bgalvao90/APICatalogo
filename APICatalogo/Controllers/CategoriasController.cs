@@ -19,8 +19,9 @@ namespace APICatalogo.Controllers
     [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
-    //[EnableRateLimiting("fixed-window")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    [EnableRateLimiting("fixed-window")]
+    [Produces("application/json")]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _uof;
@@ -33,6 +34,11 @@ namespace APICatalogo.Controllers
             _logger = logger;
         }
 
+
+        /// <summary>
+        /// Obtem uma lista de objetos por Categoria
+        /// </summary>
+        /// <returns>Uma lista de Objetos Categoria</returns>
         [HttpGet]
         //[Authorize]
         [DisableRateLimiting]
@@ -79,6 +85,13 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDto);
         }
 
+
+
+        /// <summary>
+        /// Obtem uma lista de objetos por Categoria por Id
+        /// </summary>
+        /// param name="id"></param>
+        /// <returns>Objetos Categoria</returns>
         [DisableCors]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public async Task<ActionResult<CategoriaDTO>> GetAsync(int id)
@@ -93,7 +106,21 @@ namespace APICatalogo.Controllers
             var categoriaDto = categoria.ToCategoriaDTO();
             return Ok(categoriaDto);
         }
-
+        /// <summary>
+        /// Cria uma nova Categoria
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de Request:
+        /// 
+        ///     POST api/Categorias
+        ///     {
+        ///         "CategoriaId": 1,
+        ///         "nome": "Categoria Exemplo",
+        ///         "imagemUrl": "https://example.com/imagem.jpg"
+        /// </remarks>
+        /// <param name="categoriaDto">Objeto Categoria</param>
+        /// <returns>O objeto Categoria incluida</returns>
+        /// <remarks>Retorna um objeto incluído</remarks>
         [HttpPost]
         public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDto)
         {

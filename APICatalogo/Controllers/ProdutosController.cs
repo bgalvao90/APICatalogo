@@ -17,7 +17,7 @@ namespace APICatalogo.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    //[ApiExplorerSettings(IgnoreApi = true)]
     public class ProdutosController : ControllerBase
     {
         private readonly IUnitOfWork _uof;
@@ -30,9 +30,8 @@ namespace APICatalogo.Controllers
             _logger = logger;
             _mapper = mapper;
         }
-
         [HttpGet("pagination")]
-        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync([FromQuery] ProdutosParameters produtosParameters)
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
         {
             var produtos = await _uof.ProdutoRepository.GetProdutosAsync(produtosParameters);
             return ObterProdutos(produtos);
@@ -58,6 +57,11 @@ namespace APICatalogo.Controllers
             var prodoutos = await _uof.ProdutoRepository.GetProdutosFiltroPrecoAsync(produtoFiltroPrecoParameters);
             return ObterProdutos(prodoutos);
         }
+
+        /// <summary>
+        /// Exibe uma relação de produtos.
+        /// </summary>
+        /// <returns>Retorna uma lista de objetos Produto</returns>
         [Authorize(Policy = "UserOnly")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
@@ -72,7 +76,11 @@ namespace APICatalogo.Controllers
             return Ok(produtosDto);
         }
 
-
+        /// <summary>
+        /// Obtem o produto pelo seu identificador único (ID).
+        /// </summary>
+        /// <param name="id">Codigo do produto</param>
+        /// <returns>Um objeto produto</returns>
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public async Task<ActionResult<ProdutoDTO>> GetProdutoPorIdAsync(int id)
         {

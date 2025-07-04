@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -48,11 +49,33 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    //c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    //{
+    //    Title = "API Catalogo",
+    //    Version = "v1",
+    //});
+
+
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "API Catalogo",
         Version = "v1",
+        Title = "API Catalogo",
+        Description = "API para gerenciamento de catálogo de produtos e categorias",
+        TermsOfService = new Uri("https://example.com/terms"),
+        Contact = new OpenApiContact
+        {
+            Name = "Bruno Galvão",
+            Email = "bmgalvao90@gmail.com",
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Usar sobre LICX",
+            Url = new Uri("https://example.com/license")
+        }
     });
+
+    var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
