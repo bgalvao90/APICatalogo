@@ -181,7 +181,7 @@ builder.Services.AddRateLimiter(options =>
                                                     AutoReplenishment = true,
                                                     PermitLimit = 2,
                                                     QueueLimit = 0,
-                                                    Window = TimeSpan.FromSeconds(10)
+                                                    Window = TimeSpan.FromSeconds(2)
                                                 }));
 });
 
@@ -213,6 +213,8 @@ builder.Logging.AddProvider(new CustomLoggerProvider(
     }));
 
 builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
+
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
